@@ -3,9 +3,12 @@
 /**
  * Kunena Plugin - Solved
  *
- * Lets the topic author, moderators and administrators mark a Kunena 6 topic
+ * Lets the topic author, moderators and administrators mark a Kunena topic
  * as solved: the title gets a prefix, the topic icon is set to "solved",
  * optionally a notice post is added and the topic is locked.
+ *
+ * Works with Kunena 6 (events with positional arguments) and Kunena 7
+ * (typed events with named arguments) on Joomla 5 and Joomla 6.
  *
  * @package     Kunena.Plugins
  * @subpackage  Solved
@@ -13,7 +16,9 @@
  * @license     GNU/GPLv3 or later
  */
 
-defined('_JEXEC') or die();
+namespace Joomlaplates\Plugin\Kunena\Solved\Extension;
+
+\defined('_JEXEC') or die();
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
@@ -21,6 +26,10 @@ use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Session\Session;
 use Joomla\CMS\Uri\Uri;
+use Joomla\Database\DatabaseAwareInterface;
+use Joomla\Database\DatabaseAwareTrait;
+use Joomla\Event\Event;
+use Joomla\Event\SubscriberInterface;
 use Kunena\Forum\Libraries\Forum\KunenaForum;
 use Kunena\Forum\Libraries\Forum\Topic\KunenaTopic;
 use Kunena\Forum\Libraries\Forum\Topic\KunenaTopicHelper;
@@ -28,12 +37,14 @@ use Kunena\Forum\Libraries\Icons\KunenaIcons;
 use Kunena\Forum\Libraries\User\KunenaUserHelper;
 
 /**
- * Class PlgKunenaSolved
+ * Class Solved
  *
  * @since  1.0.0
  */
-class PlgKunenaSolved extends CMSPlugin
+final class Solved extends CMSPlugin implements SubscriberInterface, DatabaseAwareInterface
 {
+    use DatabaseAwareTrait;
+
     /**
      * Load the language file on instantiation.
      *
@@ -48,22 +59,25 @@ class PlgKunenaSolved extends CMSPlugin
      * @var    string
      * @since  1.0.0
      */
-    private $buttonHtml = '';
+    private string $buttonHtml = '';
 
     /**
-     * @param   object  $subject  The object to observe
-     * @param   array   $config   Plugin configuration
+     * @return  array
      *
-     * @since   1.0.0
+     * @since   1.1.0
      */
-    public function __construct(&$subject, $config = [])
+    public static function getSubscribedEvents(): array
     {
-        // Do not load if Kunena is missing, too old or offline
-        if (!(class_exists('Kunena\Forum\Libraries\Forum\KunenaForum') && KunenaForum::isCompatible('6.0') && KunenaForum::enabled())) {
-            return;
+        // Do not listen if Kunena is missing, too old or offline
+        if (!(class_exists(KunenaForum::class) && KunenaForum::isCompatible('6.0') && KunenaForum::enabled())) {
+            return [];
         }
 
-        parent::__construct($subject, $config);
+        return [
+            'onKunenaGetButtons' => 'onKunenaGetButtons',
+            'onAfterRender'      => 'onAfterRender',
+            'onAjaxSolved'       => 'onAjaxSolved',
+        ];
     }
 
     /**
@@ -71,17 +85,24 @@ class PlgKunenaSolved extends CMSPlugin
      * buttons they know by name, so the HTML is prepared now and injected into
      * the page later in onAfterRender.
      *
-     * @param   string  $name     Button group name
-     * @param   mixed   $buttons  Registry of buttons
-     * @param   object  $view     Calling controller / view
+     * Kunena 7 passes named arguments (context, buttons, object),
+     * Kunena 6 positional ones (0, 1, 2).
+     *
+     * @param   Event  $event  The event
      *
      * @return  void
      *
      * @since   1.0.0
      */
-    public function onKunenaGetButtons($name, $buttons = null, $view = null)
+    public function onKunenaGetButtons(Event $event): void
     {
-        if ($name !== 'topic.action' || $this->buttonHtml !== '' || empty($view->topic) || !$view->topic instanceof KunenaTopic) {
+        $args    = $event->getArguments();
+        $context = $args['context'] ?? $args[0] ?? '';
+        $view    = $args['object'] ?? $args[2] ?? null;
+
+        if ($context !== 'topic.action' || $this->buttonHtml !== '' || !\is_object($view)
+            || !isset($view->topic) || !$view->topic instanceof KunenaTopic
+        ) {
             return;
         }
 
@@ -111,17 +132,19 @@ class PlgKunenaSolved extends CMSPlugin
     /**
      * Injects the solved button into the rendered Kunena topic page.
      *
+     * @param   Event  $event  The event
+     *
      * @return  void
      *
      * @since   1.0.0
      */
-    public function onAfterRender()
+    public function onAfterRender(Event $event): void
     {
         if ($this->buttonHtml === '') {
             return;
         }
 
-        $app = Factory::getApplication();
+        $app = $this->getApplication();
 
         if (!$app->isClient('site')) {
             return;
@@ -166,22 +189,20 @@ class PlgKunenaSolved extends CMSPlugin
     /**
      * Handles index.php?option=com_ajax&group=kunena&plugin=solved&task=solve|unsolve&id=X
      *
+     * @param   Event  $event  The event
+     *
      * @return  void
      *
      * @since   1.0.0
      */
-    public function onAjaxSolved()
+    public function onAjaxSolved(Event $event): void
     {
-        $app    = Factory::getApplication();
+        $app    = $this->getApplication();
         $input  = $app->getInput();
         $return = base64_decode($input->getBase64('return', ''));
 
         if (!$return || !Uri::isInternal($return)) {
             $return = Uri::root();
-        }
-
-        if (!class_exists('Kunena\Forum\Libraries\Forum\KunenaForum')) {
-            $app->redirect($return);
         }
 
         if (!Session::checkToken('get')) {
@@ -192,7 +213,7 @@ class PlgKunenaSolved extends CMSPlugin
         $task  = $input->getCmd('task');
         $topic = KunenaTopicHelper::get($input->getInt('id'));
 
-        if (!$topic->exists() || !in_array($task, ['solve', 'unsolve'], true) || !$this->canToggle($topic)) {
+        if (!$topic->exists() || !\in_array($task, ['solve', 'unsolve'], true) || !$this->canToggle($topic)) {
             $app->enqueueMessage(Text::_('PLG_KUNENA_SOLVED_NOT_ALLOWED'), 'error');
             $app->redirect($return);
         }
@@ -255,7 +276,7 @@ class PlgKunenaSolved extends CMSPlugin
     private function markUnsolved(KunenaTopic $topic): void
     {
         $prefix = $this->getPrefix();
-        $this->setSubject($topic, ltrim(mb_substr($topic->subject, mb_strlen($prefix))));
+        $this->setSubject($topic, ltrim(mb_substr((string) $topic->subject, mb_strlen($prefix))));
 
         if ($this->params->get('set_icon', 1) && (int) $topic->icon_id === (int) $this->params->get('icon_id', 8)) {
             $topic->icon_id = 0;
@@ -283,7 +304,7 @@ class PlgKunenaSolved extends CMSPlugin
     {
         $topic->subject = $subject;
 
-        $db    = Factory::getContainer()->get('DatabaseDriver');
+        $db    = $this->getDatabase();
         $query = $db->getQuery(true)
             ->update($db->quoteName('#__kunena_messages'))
             ->set($db->quoteName('subject') . ' = ' . $db->quote($subject))
@@ -302,7 +323,7 @@ class PlgKunenaSolved extends CMSPlugin
     {
         $me = KunenaUserHelper::getMyself();
 
-        if (!$me->exists() || $me->isBanned()) {
+        if (!$me || !$me->exists() || $me->isBanned()) {
             return false;
         }
 
@@ -320,6 +341,8 @@ class PlgKunenaSolved extends CMSPlugin
     }
 
     /**
+     * Case-insensitive, so manually prefixed titles like "[GELÖST]" count as solved too.
+     *
      * @param   KunenaTopic  $topic  Topic
      *
      * @return  boolean
@@ -330,7 +353,6 @@ class PlgKunenaSolved extends CMSPlugin
     {
         $prefix = $this->getPrefix();
 
-        // Case-insensitive, so manually prefixed titles like "[GELÖST]" count as solved too
         return mb_strtolower(mb_substr((string) $topic->subject, 0, mb_strlen($prefix))) === mb_strtolower($prefix);
     }
 

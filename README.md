@@ -1,8 +1,8 @@
 # Kunena Solved Plugin
 
-A Kunena 6 plugin that lets topic authors, moderators and administrators mark a forum topic as **solved**, with one click.
+A Kunena plugin that lets topic authors, moderators and administrators mark a forum topic as **solved**, with one click.
 
-The old "Kunena Solved" plugin by yagendoo only supported Joomla 3 / Kunena 5 and has been discontinued. This plugin is a new implementation for **Joomla 5** and **Kunena 6.x**.
+The old "Kunena Solved" plugin by yagendoo only supported Joomla 3 / Kunena 5 and has been discontinued. This plugin is a new implementation for **Joomla 5 / 6** and **Kunena 6 / 7**.
 
 **[Deutsche Version weiter unten](#deutsch)**
 
@@ -20,19 +20,30 @@ The old "Kunena Solved" plugin by yagendoo only supported Joomla 3 / Kunena 5 an
 
 ## Requirements
 
-- Joomla 5.x
-- Kunena 6.0 or newer (tested against the 6.3 / 6.4 code base)
-- PHP 8.1+
+| | Supported |
+|---|---|
+| **Joomla** | 5.x and 6.x |
+| **Kunena** | 6.x and 7.x |
+| **PHP** | 8.1 – 8.5 (8.3, 8.4 and 8.5 recommended) |
+
+The plugin itself needs at least Joomla 5.0 and PHP 8.1. In practice the limits of your Kunena version apply:
+
+| Kunena | Joomla | PHP |
+|---|---|---|
+| 6.4 | 5.1 – 6.1 | 8.2 – 8.4 |
+| 7.1 | 5.4.10 – 6.2 | 8.3 – 8.5 |
+
+The plugin uses the modern Joomla plugin structure (`services/provider.php`, namespaced `src/Extension` class, `SubscriberInterface`) required by Joomla 6. It reads both the positional event arguments of Kunena 6 and the typed, named event arguments of Kunena 7.
 
 ## Installation
 
-1. Download the latest ZIP from [`dist/`](dist/) (currently `plg_kunena_solved_v1.0.2.zip`).
+1. Download the latest ZIP from [`dist/`](dist/) (currently `plg_kunena_solved_v1.1.0.zip`).
 2. In Joomla go to **System → Install → Extensions** and upload the ZIP.
 3. Go to **System → Manage → Plugins**, search for **"Kunena - Solved"** and enable it.
 4. Check the plugin settings (see below).
 5. For the icon to show, topic icons must be enabled in **Kunena → Configuration**.
 
-To update, simply install the new ZIP over the old version; settings are kept.
+To update, simply install the new ZIP over the old version; settings are kept. Updating from 1.0.x removes the old `solved.php` automatically.
 
 ## Settings
 
@@ -69,7 +80,22 @@ GNU General Public License v3.0 or later. See [LICENSE](LICENSE).
 
 ## Deutsch
 
-Kunena-6-Plugin, mit dem Thema-Ersteller, Moderatoren und Administratoren ein Forenthema mit einem Klick als **gelöst** markieren können. Es ersetzt das eingestellte yagendoo-Plugin „Kunena Solved“, das nur Joomla 3 / Kunena 5 unterstützte, und läuft mit **Joomla 5** und **Kunena 6.x**.
+Kunena-Plugin, mit dem Thema-Ersteller, Moderatoren und Administratoren ein Forenthema mit einem Klick als **gelöst** markieren können. Es ersetzt das eingestellte yagendoo-Plugin „Kunena Solved“, das nur Joomla 3 / Kunena 5 unterstützte, und läuft mit **Joomla 5 / 6** und **Kunena 6 / 7**.
+
+### Voraussetzungen
+
+| | Unterstützt |
+|---|---|
+| **Joomla** | 5.x und 6.x |
+| **Kunena** | 6.x und 7.x |
+| **PHP** | 8.1 – 8.5 (empfohlen 8.3, 8.4 oder 8.5) |
+
+Das Plugin selbst braucht mindestens Joomla 5.0 und PHP 8.1. In der Praxis gelten die Grenzen deiner Kunena-Version:
+
+| Kunena | Joomla | PHP |
+|---|---|---|
+| 6.4 | 5.1 – 6.1 | 8.2 – 8.4 |
+| 7.1 | 5.4.10 – 6.2 | 8.3 – 8.5 |
 
 ### Funktionen
 
@@ -89,7 +115,7 @@ Kunena-6-Plugin, mit dem Thema-Ersteller, Moderatoren und Administratoren ein Fo
 4. Einstellungen prüfen. Auf **mehrsprachigen Seiten ein festes Präfix eintragen** (z. B. `[GELÖST]`), sonst werden gelöste Themen nur in einer Sprache erkannt.
 5. Damit das Icon erscheint, müssen Themen-Icons in der **Kunena-Konfiguration** aktiviert sein.
 
-Für ein Update das neue ZIP einfach über die alte Version installieren, die Einstellungen bleiben erhalten.
+Für ein Update das neue ZIP einfach über die alte Version installieren, die Einstellungen bleiben erhalten. Beim Update von 1.0.x wird die alte `solved.php` automatisch entfernt.
 
 ### Hinweise
 
