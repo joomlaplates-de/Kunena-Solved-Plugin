@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" group="kunena" method="upgrade">
+    <name>plg_kunena_solved</name>
+    <version>1.0.2</version>
+    <creationDate>2026-10-24</creationDate>
+    <author>Ewando / Joomlaplates</author>
+    <authorUrl>https://www.joomlaplates.de</authorUrl>
+    <copyright>(C) 2026 Joomlaplates</copyright>
+    <license>GNU/GPLv3 or later</license>
+    <description>PLG_KUNENA_SOLVED_XML_DESCRIPTION</description>
+    <files>
+        <filename plugin="solved">solved.php</filename>
+        <folder>language</folder>
+    </files>
+    <config>
+        <fields name="params">
+            <fieldset name="basic">
+                <field name="allow_author" type="radio" default="1" layout="joomla.form.field.radio.switcher"
+                       label="PLG_KUNENA_SOLVED_ALLOW_AUTHOR" description="PLG_KUNENA_SOLVED_ALLOW_AUTHOR_DESC">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="allow_moderator" type="radio" default="1" layout="joomla.form.field.radio.switcher"
+                       label="PLG_KUNENA_SOLVED_ALLOW_MODERATOR" description="PLG_KUNENA_SOLVED_ALLOW_MODERATOR_DESC">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="allow_admin" type="radio" default="1" layout="joomla.form.field.radio.switcher"
+                       label="PLG_KUNENA_SOLVED_ALLOW_ADMIN" description="PLG_KUNENA_SOLVED_ALLOW_ADMIN_DESC">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="prefix" type="text" default=""
+                       label="PLG_KUNENA_SOLVED_PREFIX" description="PLG_KUNENA_SOLVED_PREFIX_DESC"
+                       hint="PLG_KUNENA_SOLVED_PREFIX_DEFAULT"/>
+                <field name="set_icon" type="radio" default="1" layout="joomla.form.field.radio.switcher"
+                       label="PLG_KUNENA_SOLVED_SET_ICON" description="PLG_KUNENA_SOLVED_SET_ICON_DESC">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="icon_id" type="number" default="8" min="0" showon="set_icon:1"
+                       label="PLG_KUNENA_SOLVED_ICON_ID" description="PLG_KUNENA_SOLVED_ICON_ID_DESC"/>
+                <field name="post_notice" type="radio" default="1" layout="joomla.form.field.radio.switcher"
+                       label="PLG_KUNENA_SOLVED_POST_NOTICE" description="PLG_KUNENA_SOLVED_POST_NOTICE_DESC">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="notice_text" type="textarea" rows="3" default="" showon="post_notice:1"
+                       label="PLG_KUNENA_SOLVED_NOTICE_TEXT" description="PLG_KUNENA_SOLVED_NOTICE_TEXT_DESC"
+                       hint="PLG_KUNENA_SOLVED_NOTICE_DEFAULT"/>
+                <field name="lock_topic" type="radio" default="0" layout="joomla.form.field.radio.switcher"
+                       label="PLG_KUNENA_SOLVED_LOCK_TOPIC" description="PLG_KUNENA_SOLVED_LOCK_TOPIC_DESC">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+            </fieldset>
+        </fields>
+    </config>
+</extension>
