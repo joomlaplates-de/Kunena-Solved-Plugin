@@ -37,7 +37,7 @@ The plugin uses the modern Joomla plugin structure (`services/provider.php`, nam
 
 ## Installation
 
-1. Download the latest ZIP from [`dist/`](dist/) (currently `plg_kunena_solved_v1.1.0.zip`).
+1. Download the latest ZIP from [`dist/`](dist/) (currently `plg_kunena_solved_v1.1.1.zip`).
 2. In Joomla go to **System → Install → Extensions** and upload the ZIP.
 3. Go to **System → Manage → Plugins**, search for **"Kunena - Solved"** and enable it.
 4. Check the plugin settings (see below).

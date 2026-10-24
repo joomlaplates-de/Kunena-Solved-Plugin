@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="plugin" group="kunena" method="upgrade">
     <name>plg_kunena_solved</name>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <creationDate>2026-10-25</creationDate>
     <author>Ewando / Joomlaplates</author>
     <authorUrl>https://www.joomlaplates.de</authorUrl>

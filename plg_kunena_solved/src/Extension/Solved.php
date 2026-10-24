@@ -117,7 +117,8 @@ final class Solved extends CMSPlugin implements SubscriberInterface, DatabaseAwa
         $return = base64_encode(Uri::getInstance()->toString());
         $url    = Route::_(
             'index.php?option=com_ajax&group=kunena&plugin=solved&format=raw&task=' . $action
-            . '&id=' . (int) $topic->id . '&return=' . urlencode($return) . '&' . Session::getFormToken() . '=1'
+            . '&id=' . (int) $topic->id . '&return=' . urlencode($return) . '&' . Session::getFormToken() . '=1',
+            false // Plain "&": the URL is escaped once below; xhtml mode would double-escape it and break the token
         );
 
         $label = Text::_($solved ? 'PLG_KUNENA_SOLVED_BUTTON_UNSOLVE' : 'PLG_KUNENA_SOLVED_BUTTON_SOLVE');
